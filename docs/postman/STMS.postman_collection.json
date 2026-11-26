@@ -1,0 +1,224 @@
+{
+  "info": {
+    "name": "Support Ticket Management System",
+    "description": "Cookie-based JWT auth. Run Auth > Register or Login first; Postman keeps cookies for subsequent requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "ticketId", "value": "PASTE_TICKET_ID_HERE" },
+    { "key": "notificationId", "value": "PASTE_NOTIFICATION_ID_HERE" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "API root",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/" }
+        },
+        {
+          "name": "Health check",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/health" }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@stms.local\",\n  \"password\": \"Admin@12345\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Me",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/auth/me" }
+        },
+        {
+          "name": "Refresh session",
+          "request": { "method": "POST", "header": [], "url": "{{baseUrl}}/api/auth/refresh" }
+        },
+        {
+          "name": "Logout",
+          "request": { "method": "POST", "header": [], "url": "{{baseUrl}}/api/auth/logout" }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Create ticket",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Laptop will not connect to Wi-Fi\",\n  \"description\": \"Since yesterday my laptop cannot join the office network.\",\n  \"category\": \"technical\",\n  \"priority\": \"high\"\n}"
+            },
+            "url": "{{baseUrl}}/api/tickets"
+          },
+          "event": {
+            "listen": "test",
+            "script": {
+              "exec": [
+                "if (pm.response.code === 201) {",
+                "  pm.collectionVariables.set('ticketId', pm.response.json().ticket.id);",
+                "}"
+              ],
+              "type": "text/javascript"
+            }
+          }
+        },
+        {
+          "name": "List tickets (filtered & paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets?status=open&priority=high&search=Wi-Fi&sortBy=createdAt&sortOrder=desc&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tickets"],
+              "query": [
+                { "key": "status", "value": "open" },
+                { "key": "priority", "value": "high" },
+                { "key": "search", "value": "Wi-Fi" },
+                { "key": "sortBy", "value": "createdAt" },
+                { "key": "sortOrder", "value": "desc" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ticket stats",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tickets/stats" }
+        },
+        {
+          "name": "Get ticket",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tickets/{{ticketId}}" }
+        },
+        {
+          "name": "Update ticket",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated ticket title\",\n  \"priority\": \"urgent\"\n}"
+            },
+            "url": "{{baseUrl}}/api/tickets/{{ticketId}}"
+          }
+        },
+        {
+          "name": "Add comment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"body\": \"I have tried restarting the laptop.\"\n}" },
+            "url": "{{baseUrl}}/api/tickets/{{ticketId}}/comments"
+          }
+        },
+        {
+          "name": "List comments",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tickets/{{ticketId}}/comments" }
+        },
+        {
+          "name": "Activity timeline",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/tickets/{{ticketId}}/activity" }
+        },
+        {
+          "name": "Delete ticket",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/tickets/{{ticketId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List all tickets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/admin/tickets?status=open&priority=urgent&page=1&limit=10"
+          }
+        },
+        {
+          "name": "Global stats",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/admin/stats" }
+        },
+        {
+          "name": "Change status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"resolved\"\n}" },
+            "url": "{{baseUrl}}/api/admin/tickets/{{ticketId}}/status"
+          }
+        },
+        {
+          "name": "Change priority",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"priority\": \"urgent\"\n}" },
+            "url": "{{baseUrl}}/api/admin/tickets/{{ticketId}}/priority"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/notifications"
+          },
+          "event": {
+            "listen": "test",
+            "script": {
+              "exec": [
+                "var notes = pm.response.json().notifications;",
+                "if (notes && notes.length) { pm.collectionVariables.set('notificationId', notes[0].id); }"
+              ],
+              "type": "text/javascript"
+            }
+          }
+        },
+        {
+          "name": "Mark as read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/notifications/{{notificationId}}/read"
+          }
+        }
+      ]
+    }
+  ]
+}
