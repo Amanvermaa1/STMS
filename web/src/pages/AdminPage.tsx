@@ -64,17 +64,17 @@ export function AdminPage() {
             { label: 'In progress', value: stats.byStatus.in_progress },
             { label: 'Resolved', value: stats.byStatus.resolved },
           ].map((card) => (
-            <div key={card.label} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm font-medium text-slate-500">{card.label}</p>
-              <p className="mt-2 text-3xl font-bold text-slate-900">{card.value}</p>
+            <div key={card.label} className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
+              <p className="text-sm font-medium text-stone-500">{card.label}</p>
+              <p className="mt-2 text-3xl font-bold text-stone-900">{card.value}</p>
             </div>
           ))}
         </div>
       )}
 
-      <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
-          <h2 className="text-base font-semibold text-slate-900">All submissions</h2>
+      <section className="rounded-xl border border-stone-200 bg-white shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 px-5 py-4">
+          <h2 className="text-base font-semibold text-stone-900">All submissions</h2>
           <select
             className={`${inputClass} max-w-xs`}
             value={statusFilter}
@@ -89,7 +89,7 @@ export function AdminPage() {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
               <tr>
                 <th className="px-5 py-3 font-semibold">Ticket</th>
                 <th className="px-5 py-3 font-semibold">Submitted by</th>
@@ -99,18 +99,18 @@ export function AdminPage() {
                 <th className="px-5 py-3 font-semibold">Updated</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-stone-100">
               {tickets.map((ticket) => (
-                <tr key={ticket.id} className="hover:bg-slate-50/70">
+                <tr key={ticket.id} className="hover:bg-stone-50/70">
                   <td className="px-5 py-4">
-                    <Link to={`/tickets/${ticket.id}`} className="font-semibold text-indigo-700 hover:underline">
+                    <Link to={`/tickets/${ticket.id}`} className="font-semibold text-brand-700 hover:underline">
                       {ticket.title}
                     </Link>
-                    <p className="mt-0.5 text-xs text-slate-500">#{ticket.id.slice(0, 8)}</p>
+                    <p className="mt-0.5 text-xs text-stone-500">#{ticket.id.slice(0, 8)}</p>
                   </td>
                   <td className="px-5 py-4">
-                    <p className="text-slate-700">{ticket.authorName ?? '—'}</p>
-                    <p className="text-xs text-slate-500">{ticket.author?.email ?? ''}</p>
+                    <p className="text-stone-700">{ticket.authorName ?? '—'}</p>
+                    <p className="text-xs text-stone-500">{ticket.author?.email ?? ''}</p>
                   </td>
                   <td className="px-5 py-4"><CategoryBadge category={ticket.category} /></td>
                   <td className="px-5 py-4">
@@ -137,12 +137,12 @@ export function AdminPage() {
                       <option value="urgent">Urgent</option>
                     </select>
                   </td>
-                  <td className="whitespace-nowrap px-5 py-4 text-xs text-slate-500">{formatDate(ticket.updatedAt)}</td>
+                  <td className="whitespace-nowrap px-5 py-4 text-xs text-stone-500">{formatDate(ticket.updatedAt)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {tickets.length === 0 && <p className="px-5 py-10 text-center text-sm text-slate-500">No tickets match this filter.</p>}
+          {tickets.length === 0 && <p className="px-5 py-10 text-center text-sm text-stone-500">No tickets match this filter.</p>}
         </div>
       </section>
     </div>

@@ -13,6 +13,7 @@ A mini helpdesk where users raise and track support tickets, and administrators 
 - **Admin console:** view all tickets, filter by status/priority, update status/priority, global dashboard statistics.
 - **Event-driven actions:** `ticket.created`, `ticket.updated`, `ticket.status_changed`, `ticket.resolved`, `comment.added` → append to activity log, create in-app notifications, optionally send SMTP email.
 - **Quality:** Zod validation, centralized error handling, parameterized queries via Drizzle ORM, rate-limited auth routes, ownership checks in the service layer.
+- **Theme:** light cream backgrounds with orange/yellow accents, warm stone neutrals and icon-based UI — no emojis and no blue/purple palette.
 - **Extras:** Vitest + Supertest + PGlite integration tests (16 passing), Postman collection, Docker Compose, deployment guide.
 
 ## Tech stack

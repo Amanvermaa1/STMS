@@ -79,14 +79,14 @@ export function TicketsPage() {
         action={
           <Link
             to="/tickets/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
           >
             <Plus size={16} /> New ticket
           </Link>
         }
       />
 
-      <div className="mb-5 grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mb-5 grid gap-3 rounded-xl border border-stone-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
         <input
           className={`${inputClass} lg:col-span-2`}
           placeholder="Search by title or description…"
@@ -130,10 +130,10 @@ export function TicketsPage() {
       ) : items.length === 0 ? (
         <EmptyState title="No tickets found" message="Try adjusting your filters or raise a new ticket." />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <thead className="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
                 <tr>
                   <th className="px-5 py-3 font-semibold">Ticket</th>
                   {user?.role === 'admin' && <th className="px-5 py-3 font-semibold">Submitted by</th>}
@@ -143,33 +143,33 @@ export function TicketsPage() {
                   <th className="px-5 py-3 font-semibold">Updated</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-stone-100">
                 {items.map((ticket) => (
-                  <tr key={ticket.id} className="hover:bg-slate-50/70">
+                  <tr key={ticket.id} className="hover:bg-stone-50/70">
                     <td className="px-5 py-4">
-                      <Link to={`/tickets/${ticket.id}`} className="font-semibold text-indigo-700 hover:underline">
+                      <Link to={`/tickets/${ticket.id}`} className="font-semibold text-brand-700 hover:underline">
                         {ticket.title}
                       </Link>
-                      <p className="mt-0.5 line-clamp-1 max-w-md text-xs text-slate-500">{ticket.description}</p>
+                      <p className="mt-0.5 line-clamp-1 max-w-md text-xs text-stone-500">{ticket.description}</p>
                     </td>
-                    {user?.role === 'admin' && <td className="px-5 py-4 text-slate-600">{ticket.authorName ?? '—'}</td>}
+                    {user?.role === 'admin' && <td className="px-5 py-4 text-stone-600">{ticket.authorName ?? '—'}</td>}
                     <td className="px-5 py-4"><CategoryBadge category={ticket.category} /></td>
                     <td className="px-5 py-4"><PriorityBadge priority={ticket.priority} /></td>
                     <td className="px-5 py-4"><StatusBadge status={ticket.status} /></td>
-                    <td className="whitespace-nowrap px-5 py-4 text-xs text-slate-500">{formatDate(ticket.updatedAt)}</td>
+                    <td className="whitespace-nowrap px-5 py-4 text-xs text-stone-500">{formatDate(ticket.updatedAt)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-5 py-3 text-sm text-slate-600">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-200 px-5 py-3 text-sm text-stone-600">
             <span>
               Showing {(pagination.page - 1) * pagination.limit + 1}–{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
             </span>
             <div className="flex items-center gap-2">
               <button
-                className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm disabled:opacity-40"
+                className="inline-flex items-center gap-1 rounded-lg border border-stone-300 px-3 py-1.5 text-sm disabled:opacity-40"
                 disabled={pagination.page <= 1}
                 onClick={() => update({ page: pagination.page - 1 })}
               >
@@ -179,7 +179,7 @@ export function TicketsPage() {
                 Page {pagination.page} of {pagination.totalPages}
               </span>
               <button
-                className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm disabled:opacity-40"
+                className="inline-flex items-center gap-1 rounded-lg border border-stone-300 px-3 py-1.5 text-sm disabled:opacity-40"
                 disabled={pagination.page >= pagination.totalPages}
                 onClick={() => update({ page: pagination.page + 1 })}
               >

@@ -58,7 +58,7 @@ export function TicketFormPage() {
         title={isEdit ? 'Edit ticket' : 'Raise a support ticket'}
         subtitle={isEdit ? 'Update the details of your request.' : 'Tell us what happened and we will take it from there.'}
       />
-      <form onSubmit={submit} className="space-y-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <form onSubmit={submit} className="space-y-5 rounded-xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
         {error && <ErrorBanner message={error} />}
         <Field label="Title" htmlFor="title">
           <input
@@ -104,7 +104,7 @@ export function TicketFormPage() {
             </select>
           </Field>
         </div>
-        <div className="flex flex-wrap gap-3 border-t border-slate-100 pt-5">
+        <div className="flex flex-wrap gap-3 border-t border-stone-100 pt-5">
           <Button type="submit" disabled={busy}>
             {busy ? 'Saving…' : isEdit ? 'Save changes' : 'Submit ticket'}
           </Button>

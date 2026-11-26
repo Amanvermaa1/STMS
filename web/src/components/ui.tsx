@@ -4,10 +4,10 @@ import type { ActivityEntry as Activity, Priority, Status } from '../types';
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
 const buttonVariants: Record<ButtonVariant, string> = {
-  primary: 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500',
-  secondary: 'bg-white text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 focus:ring-indigo-500',
-  danger: 'bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500',
-  ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 focus:ring-slate-400',
+  primary: 'bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500',
+  secondary: 'bg-white text-stone-700 ring-1 ring-stone-300 hover:bg-stone-50 focus:ring-brand-500',
+  danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+  ghost: 'bg-transparent text-stone-600 hover:bg-stone-100 focus:ring-stone-400',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -25,17 +25,17 @@ export function Button({ variant = 'primary', className = '', type = 'button', .
 }
 
 const statusStyles: Record<Status, string> = {
-  open: 'bg-blue-50 text-blue-700 ring-blue-200',
-  in_progress: 'bg-amber-50 text-amber-700 ring-amber-200',
-  resolved: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  closed: 'bg-slate-100 text-slate-600 ring-slate-200',
+  open: 'bg-orange-50 text-orange-700 ring-orange-200',
+  in_progress: 'bg-yellow-50 text-yellow-800 ring-yellow-200',
+  resolved: 'bg-amber-50 text-amber-800 ring-amber-200',
+  closed: 'bg-stone-100 text-stone-600 ring-stone-200',
 };
 
 const priorityStyles: Record<Priority, string> = {
-  low: 'bg-slate-100 text-slate-600 ring-slate-200',
-  medium: 'bg-sky-50 text-sky-700 ring-sky-200',
+  low: 'bg-stone-100 text-stone-600 ring-stone-200',
+  medium: 'bg-yellow-50 text-yellow-800 ring-yellow-200',
   high: 'bg-orange-50 text-orange-700 ring-orange-200',
-  urgent: 'bg-rose-50 text-rose-700 ring-rose-200',
+  urgent: 'bg-red-50 text-red-700 ring-red-200',
 };
 
 function badgeClass(tone: string) {
@@ -51,13 +51,13 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
 }
 
 export function CategoryBadge({ category }: { category: string }) {
-  return <span className={badgeClass('bg-violet-50 text-violet-700 ring-violet-200')}>{category.replace('_', ' ')}</span>;
+  return <span className={badgeClass('bg-amber-50 text-amber-700 ring-amber-200')}>{category.replace('_', ' ')}</span>;
 }
 
 export function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-slate-700">
+      <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-stone-700">
         {label}
       </label>
       {children}
@@ -66,19 +66,19 @@ export function Field({ label, htmlFor, children }: { label: string; htmlFor: st
 }
 
 export const inputClass =
-  'block w-full rounded-lg border-0 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500';
+  'block w-full rounded-lg border-0 bg-white px-3 py-2.5 text-sm text-stone-900 shadow-sm ring-1 ring-inset ring-stone-300 placeholder:text-stone-400 focus:ring-2 focus:ring-brand-500';
 
 export function Spinner() {
   return (
     <div className="flex items-center justify-center py-16">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600" />
     </div>
   );
 }
 
 export function ErrorBanner({ message }: { message: string }) {
   return (
-    <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
       {message}
     </div>
   );
@@ -86,9 +86,9 @@ export function ErrorBanner({ message }: { message: string }) {
 
 export function EmptyState({ title, message }: { title: string; message: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
-      <p className="font-semibold text-slate-800">{title}</p>
-      <p className="mt-1 text-sm text-slate-500">{message}</p>
+    <div className="rounded-xl border border-dashed border-stone-300 bg-white px-6 py-14 text-center">
+      <p className="font-semibold text-stone-800">{title}</p>
+      <p className="mt-1 text-sm text-stone-500">{message}</p>
     </div>
   );
 }
@@ -97,8 +97,8 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        <h1 className="text-2xl font-bold tracking-tight text-stone-900">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-stone-500">{subtitle}</p>}
       </div>
       {action}
     </div>
@@ -118,19 +118,19 @@ export function humanizeEvent(type: string): string {
 
 export function ActivityEntry({ activity }: { activity: Activity[] }) {
   if (activity.length === 0) {
-    return <p className="text-sm text-slate-500">No activity recorded yet.</p>;
+    return <p className="text-sm text-stone-500">No activity recorded yet.</p>;
   }
   return (
-    <ol className="relative space-y-5 border-l border-slate-200 pl-5">
+    <ol className="relative space-y-5 border-l border-stone-200 pl-5">
       {activity.map((entry) => (
         <li key={entry.id} className="relative">
-          <span className="absolute -left-[1.6rem] top-1.5 h-3 w-3 rounded-full border-2 border-white bg-indigo-500 ring-1 ring-indigo-200" />
-          <p className="text-sm font-semibold text-slate-800">{humanizeEvent(entry.eventType)}</p>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <span className="absolute -left-[1.6rem] top-1.5 h-3 w-3 rounded-full border-2 border-white bg-brand-500 ring-1 ring-brand-200" />
+          <p className="text-sm font-semibold text-stone-800">{humanizeEvent(entry.eventType)}</p>
+          <p className="mt-0.5 text-xs text-stone-500">
             {entry.actorName ?? entry.actorRole} · {formatDate(entry.createdAt)}
           </p>
           {Boolean(entry.metadata?.to) && (
-            <p className="mt-1 text-xs font-medium text-indigo-600">→ {String(entry.metadata.to)}</p>
+            <p className="mt-1 text-xs font-medium text-brand-600">→ {String(entry.metadata.to)}</p>
           )}
         </li>
       ))}

@@ -96,7 +96,7 @@ export function TicketDetailPage() {
 
   return (
     <div>
-      <Link to="/tickets" className="mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600">
+      <Link to="/tickets" className="mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-brand-600">
         <ArrowLeft size={16} /> Back to tickets
       </Link>
 
@@ -104,17 +104,17 @@ export function TicketDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Ticket #{ticket.id.slice(0, 8)}</p>
-                <h1 className="mt-1 text-2xl font-bold text-slate-900">{ticket.title}</h1>
+                <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Ticket #{ticket.id.slice(0, 8)}</p>
+                <h1 className="mt-1 text-2xl font-bold text-stone-900">{ticket.title}</h1>
               </div>
               {canEdit && (
                 <div className="flex gap-2">
                   <Link
                     to={`/tickets/${ticket.id}/edit`}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
                   >
                     <Pencil size={15} /> Edit
                   </Link>
@@ -129,40 +129,40 @@ export function TicketDetailPage() {
               <PriorityBadge priority={ticket.priority} />
               <CategoryBadge category={ticket.category} />
             </div>
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{ticket.description}</p>
-            <dl className="mt-6 grid gap-4 border-t border-slate-100 pt-5 text-sm sm:grid-cols-2">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">{ticket.description}</p>
+            <dl className="mt-6 grid gap-4 border-t border-stone-100 pt-5 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Submitted by</dt>
-                <dd className="mt-1 text-slate-700">{ticket.author?.name ?? ticket.authorName ?? '—'}</dd>
+                <dt className="text-xs font-medium uppercase tracking-wide text-stone-400">Submitted by</dt>
+                <dd className="mt-1 text-stone-700">{ticket.author?.name ?? ticket.authorName ?? '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Created</dt>
-                <dd className="mt-1 text-slate-700">{formatDate(ticket.createdAt)}</dd>
+                <dt className="text-xs font-medium uppercase tracking-wide text-stone-400">Created</dt>
+                <dd className="mt-1 text-stone-700">{formatDate(ticket.createdAt)}</dd>
               </div>
             </dl>
           </section>
 
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-5 flex items-center gap-2 text-base font-semibold text-slate-900">
+          <section className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-5 flex items-center gap-2 text-base font-semibold text-stone-900">
               <MessageSquare size={18} /> Conversation ({comments.length})
             </h2>
             <div className="space-y-4">
-              {comments.length === 0 && <p className="text-sm text-slate-500">No comments yet. Start the conversation below.</p>}
+              {comments.length === 0 && <p className="text-sm text-stone-500">No comments yet. Start the conversation below.</p>}
               {comments.map((comment) => (
-                <div key={comment.id} className={`rounded-lg p-4 ${comment.authorRole === 'admin' ? 'bg-indigo-50/70 ring-1 ring-indigo-100' : 'bg-slate-50'}`}>
+                <div key={comment.id} className={`rounded-lg p-4 ${comment.authorRole === 'admin' ? 'bg-brand-50/70 ring-1 ring-brand-100' : 'bg-stone-50'}`}>
                   <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-slate-800">
+                    <p className="text-sm font-semibold text-stone-800">
                       {comment.authorName}
-                      {comment.authorRole === 'admin' && <span className="ml-2 rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700">Support team</span>}
+                      {comment.authorRole === 'admin' && <span className="ml-2 rounded bg-brand-100 px-2 py-0.5 text-xs text-brand-700">Support team</span>}
                     </p>
-                    <p className="text-xs text-slate-500">{formatDate(comment.createdAt)}</p>
+                    <p className="text-xs text-stone-500">{formatDate(comment.createdAt)}</p>
                   </div>
-                  <p className="whitespace-pre-wrap text-sm text-slate-700">{comment.body}</p>
+                  <p className="whitespace-pre-wrap text-sm text-stone-700">{comment.body}</p>
                 </div>
               ))}
             </div>
 
-            <form onSubmit={addComment} className="mt-6 border-t border-slate-100 pt-5">
+            <form onSubmit={addComment} className="mt-6 border-t border-stone-100 pt-5">
               <Field label="Add a comment" htmlFor="comment">
                 <textarea
                   id="comment"
@@ -183,8 +183,8 @@ export function TicketDetailPage() {
         </div>
 
         <div className="space-y-6">
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-base font-semibold text-slate-900">Ticket controls</h2>
+          <section className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-base font-semibold text-stone-900">Ticket controls</h2>
             {user?.role === 'admin' ? (
               <div className="space-y-4">
                 <Field label="Status" htmlFor="status">
@@ -217,12 +217,12 @@ export function TicketDetailPage() {
                 </Field>
               </div>
             ) : (
-              <p className="text-sm text-slate-500">Status changes are managed by the support team.</p>
+              <p className="text-sm text-stone-500">Status changes are managed by the support team.</p>
             )}
           </section>
 
-          <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-base font-semibold text-slate-900">Activity</h2>
+          <section className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-base font-semibold text-stone-900">Activity</h2>
             <ActivityEntry activity={activity} />
           </section>
         </div>

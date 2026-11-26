@@ -47,15 +47,15 @@ export function NotificationsPage() {
             <div
               key={notification.id}
               className={`flex flex-wrap items-center gap-4 rounded-xl border bg-white p-5 shadow-sm ${
-                notification.readAt ? 'border-slate-200' : 'border-indigo-200 ring-1 ring-indigo-100'
+                notification.readAt ? 'border-stone-200' : 'border-brand-200 ring-1 ring-brand-100'
               }`}
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                 <BellRing size={19} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-slate-800">{notification.message}</p>
-                <p className="mt-1 text-xs text-slate-500">{formatDate(notification.createdAt)}</p>
+                <p className="text-sm font-medium text-stone-800">{notification.message}</p>
+                <p className="mt-1 text-xs text-stone-500">{formatDate(notification.createdAt)}</p>
               </div>
               {!notification.readAt && (
                 <Button variant="secondary" className="px-3 py-1.5 text-xs" onClick={() => markRead(notification.id)}>
@@ -64,7 +64,7 @@ export function NotificationsPage() {
               )}
               <Link
                 to={`/tickets/${notification.ticketId}`}
-                className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+                className="text-sm font-semibold text-brand-600 hover:text-brand-700"
               >
                 View ticket
               </Link>

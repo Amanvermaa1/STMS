@@ -7,20 +7,20 @@ import { Button, ErrorBanner, Field, inputClass } from '../components/ui';
 
 function AuthShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-sky-50 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 via-cream-50 to-yellow-50 px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 flex items-center justify-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-200">
             <LifeBuoy size={24} />
           </span>
           <div>
-            <p className="text-lg font-bold text-slate-900">Helpdesk</p>
-            <p className="text-xs text-slate-500">Support Ticket Management</p>
+            <p className="text-lg font-bold text-stone-900">Helpdesk</p>
+            <p className="text-xs text-stone-500">Support Ticket Management</p>
           </div>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/60">
-          <h1 className="text-xl font-bold text-slate-900">{title}</h1>
-          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+        <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-xl shadow-stone-200/60">
+          <h1 className="text-xl font-bold text-stone-900">{title}</h1>
+          <p className="mt-1 text-sm text-stone-500">{subtitle}</p>
           <div className="mt-6">{children}</div>
         </div>
       </div>
@@ -84,9 +84,9 @@ export function LoginPage() {
           {busy ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-stone-500">
         No account?{' '}
-        <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-700">
+        <Link to="/register" className="font-semibold text-brand-600 hover:text-brand-700">
           Create one
         </Link>
       </p>
@@ -163,9 +163,9 @@ export function RegisterPage() {
           {busy ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-stone-500">
         Already registered?{' '}
-        <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-700">
+        <Link to="/login" className="font-semibold text-brand-600 hover:text-brand-700">
           Sign in
         </Link>
       </p>
