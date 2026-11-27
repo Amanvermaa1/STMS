@@ -7,7 +7,8 @@
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:4000" },
     { "key": "ticketId", "value": "PASTE_TICKET_ID_HERE" },
-    { "key": "notificationId", "value": "PASTE_NOTIFICATION_ID_HERE" }
+    { "key": "notificationId", "value": "PASTE_NOTIFICATION_ID_HERE" },
+    { "key": "passkeyId", "value": "PASTE_PASSKEY_ID_HERE" }
   ],
   "item": [
     {
@@ -217,6 +218,112 @@
             "header": [],
             "url": "{{baseUrl}}/api/notifications/{{notificationId}}/read"
           }
+        }
+      ]
+    },
+    {
+      "name": "Personalization & insights",
+      "item": [
+        {
+          "name": "Get preferences",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/me/preferences" }
+        },
+        {
+          "name": "Update preferences",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dashboard\": { \"widgets\": [\"summary\", \"recent\", \"priority\"] },\n  \"tickets\": { \"status\": \"open\", \"limit\": 10 },\n  \"privacy\": { \"analyticsOptIn\": true }\n}"
+            },
+            "url": "{{baseUrl}}/api/me/preferences"
+          }
+        },
+        {
+          "name": "Record analytics events",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"events\": [\n    { \"type\": \"ticket.view\", \"metadata\": { \"detail\": true } },\n    { \"type\": \"assistant.query\", \"metadata\": { \"resultCount\": 2 } }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/api/analytics/events"
+          }
+        },
+        {
+          "name": "Analytics insights (admin)",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/analytics/insights" }
+        },
+        {
+          "name": "Ask assistant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"query\": \"show my open tickets\"\n}" },
+            "url": "{{baseUrl}}/api/assistant/query"
+          }
+        },
+        {
+          "name": "Export my data",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/me/data" }
+        },
+        {
+          "name": "Delete account (password required)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"password\": \"Password123\"\n}" },
+            "url": "{{baseUrl}}/api/me/data"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Passkeys (WebAuthn)",
+      "item": [
+        {
+          "name": "List passkeys",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/passkeys" }
+        },
+        {
+          "name": "Registration options",
+          "request": { "method": "POST", "header": [], "url": "{{baseUrl}}/api/passkeys/register/options" }
+        },
+        {
+          "name": "Registration verify",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "PASTE_REGISTRATION_RESPONSE_JSON_FROM_BROWSER" },
+            "url": "{{baseUrl}}/api/passkeys/register/verify"
+          }
+        },
+        {
+          "name": "Authentication options",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\"\n}" },
+            "url": "{{baseUrl}}/api/passkeys/authenticate/options"
+          }
+        },
+        {
+          "name": "Authentication verify",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane@example.com\",\n  \"response\": PASTE_AUTHENTICATION_RESPONSE_JSON_FROM_BROWSER\n}"
+            },
+            "url": "{{baseUrl}}/api/passkeys/authenticate/verify"
+          }
+        },
+        {
+          "name": "Remove passkey",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/passkeys/{{passkeyId}}" }
         }
       ]
     }

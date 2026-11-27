@@ -66,3 +66,48 @@ export interface Stats {
   byPriority: Record<Priority, number>;
   byCategory: Record<Category, number>;
 }
+
+export interface TicketListPreferences {
+  search?: string;
+  status?: '' | Status;
+  priority?: '' | Priority;
+  sortBy?: 'createdAt' | 'updatedAt' | 'priority' | 'status';
+  sortOrder?: 'asc' | 'desc';
+  limit?: number;
+}
+
+export interface UserPreferences {
+  dashboard?: { widgets?: string[] };
+  tickets?: TicketListPreferences;
+  privacy?: {
+    analyticsOptIn?: boolean;
+    productUpdatesOptIn?: boolean;
+  };
+}
+
+export interface AnalyticsInsights {
+  windowDays: number;
+  total: number;
+  byType: Record<string, number>;
+  recent: Array<{ type: string; createdAt: string }>;
+}
+
+export interface PasskeySummary {
+  id: string;
+  label: string;
+  deviceType: string;
+  backedUp: boolean;
+  createdAt: string;
+}
+
+export interface AssistantResult {
+  answer: string;
+  tickets: Array<Pick<Ticket, 'id' | 'title' | 'status' | 'priority' | 'category' | 'updatedAt'>>;
+  total: number;
+  filters: {
+    status: Status | null;
+    priority: Priority | null;
+    category: Category | null;
+    search: string | null;
+  };
+}

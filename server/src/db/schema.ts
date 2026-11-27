@@ -1,5 +1,7 @@
 import {
+  boolean,
   index,
+  integer,
   jsonb,
   pgEnum,
   pgTable,
@@ -124,6 +126,87 @@ export const notifications = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index('notifications_recipient_idx').on(table.recipientId, table.readAt)],
+);
+
+export interface TicketListPreferences {
+  search?: string;
+  status?: string;
+  priority?: string;
+  sortBy?: string;
+  sortOrder?: string;
+  limit?: number;
+}
+
+export interface PrivacyPreferences {
+  analyticsOptIn?: boolean;
+  productUpdatesOptIn?: boolean;
+}
+
+export interface UserPreferenceValues {
+  dashboard?: { widgets?: string[] };
+  tickets?: TicketListPreferences;
+  privacy?: PrivacyPreferences;
+}
+
+export const userPreferences = pgTable('user_preferences', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  values: jsonb('values').$type<UserPreferenceValues>().notNull().default({}),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const analyticsEvents = pgTable(
+  'analytics_events',
+  {
+    id: uuid('id').primaryKey(),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    type: varchar('type', { length: 80 }).notNull(),
+    metadata: jsonb('metadata').$type<Record<string, unknown>>().notNull().default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('analytics_events_user_idx').on(table.userId),
+    index('analytics_events_type_created_idx').on(table.type, table.createdAt),
+  ],
+);
+
+export const passkeyCredentials = pgTable(
+  'passkey_credentials',
+  {
+    id: uuid('id').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    credentialId: varchar('credential_id', { length: 255 }).notNull(),
+    publicKey: text('public_key').notNull(),
+    counter: integer('counter').notNull().default(0),
+    deviceType: varchar('device_type', { length: 20 }).notNull().default('single_device'),
+    backedUp: boolean('backed_up').notNull().default(false),
+    transports: jsonb('transports').$type<string[]>().notNull().default([]),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('passkey_credentials_credential_id_unique').on(table.credentialId),
+    index('passkey_credentials_user_idx').on(table.userId),
+  ],
+);
+
+export const webauthnChallenges = pgTable(
+  'webauthn_challenges',
+  {
+    id: uuid('id').primaryKey(),
+    type: varchar('type', { length: 20 }).notNull(),
+    challenge: varchar('challenge', { length: 255 }).notNull(),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    userIdentifier: varchar('user_identifier', { length: 254 }),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('webauthn_challenges_challenge_unique').on(table.challenge),
+    index('webauthn_challenges_user_idx').on(table.userId),
+  ],
 );
 
 export type UserRow = typeof users.$inferSelect;

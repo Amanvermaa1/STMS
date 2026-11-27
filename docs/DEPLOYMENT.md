@@ -2,15 +2,26 @@
 
 The repository is deployment-ready; create the hosted accounts and add the URLs/secrets to complete the live link requirement.
 
-## 1. Database (Neon or Supabase)
+## 1. Database (Supabase)
 
-Neon (free tier) is the simplest option:
-
-1. Create a project at <https://neon.com> and copy the **pooled** connection string (`-pooler` host).
-2. Replace `sslmode=require` with `sslmode=verify-full` for `pg` 8.23+.
-3. Keep a separate direct connection string for migrations if your provider requires it.
-
-Set `DATABASE_URL` to the pooled string for the API runtime.
+1. Create a project at <https://supabase.com/dashboard> and copy the connection strings from **Project Settings → Database → Connection strings**.
+2. Use the **Transaction pooler** string (port `6543`) for the API runtime:
+   ```env
+   DATABASE_URL="postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?sslmode=require&uselibpqcompat=true"
+   ```
+3. Use the **Session pooler** or **direct** string (port `5432`) for migrations:
+   ```env
+   DATABASE_MIGRATION_URL="postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres?sslmode=require&uselibpqcompat=true"
+   ```
+   The `uselibpqcompat=true` flag keeps `sslmode=require` compatible with node-postgres v8 and the Supabase pooler certificate chain.
+   `DATABASE_MIGRATION_URL` falls back to `DATABASE_URL`, so it is optional for local Docker/Postgres.
+4. Apply the generated tables before starting the API:
+   ```bash
+   cd server
+   npm run db:migrate
+   npm run db:seed
+   ```
+   The Supabase free tier pauses idle databases, so the first request after a pause may take a few seconds.
 
 ## 2. API (Render)
 
@@ -21,6 +32,7 @@ Set `DATABASE_URL` to the pooled string for the API runtime.
    ```
    (`server/Dockerfile` already builds the TypeScript output.)
 3. Environment variables: `DATABASE_URL`, `NODE_ENV=production`, `JWT_SECRET`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN=<web-url>`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and optional SMTP settings.
+   For passkeys, also set `WEBAUTHN_RP_ID` to your web domain (without protocol/port), `WEBAUTHN_RP_NAME` to a friendly product name, and `WEBAUTHN_ORIGINS` to the comma-separated HTTPS origin(s) of the web app.
 4. Health check path: `/health`.
 5. Note the API URL, e.g. `https://stms-api.onrender.com`.
 
@@ -62,5 +74,7 @@ Web: `http://host:8080`, API: `http://host:4000/health`. The Compose file starts
 - [ ] Register a user, log in, create a ticket.
 - [ ] Log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`, change status to resolved.
 - [ ] Confirm the user receives a notification and the activity log shows the events.
+- [ ] In Settings, add a passkey and sign out; sign back in with the passkey on the configured origin.
+- [ ] Toggle analytics off and confirm the admin insights counter does not increase.
 - [ ] Add the live web URL to the README and submission.
 - [ ] Rotate all development secrets before sharing publicly.

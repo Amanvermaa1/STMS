@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BellRing } from 'lucide-react';
+import { BellRing, Check } from 'lucide-react';
 import api, { errorMessage } from '../api/client';
-import { Button, EmptyState, ErrorBanner, PageHeader, Spinner, formatDate } from '../components/ui';
+import { track } from '../api/analytics';
+import { Button, EmptyState, ErrorBanner, PageHeader, SkeletonRows, formatDate, useToast } from '../components/ui';
 import type { AppNotification } from '../types';
 
 export function NotificationsPage() {
+  const { toast } = useToast();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,25 +30,31 @@ export function NotificationsPage() {
           notification.id === id ? { ...notification, readAt: new Date().toISOString() } : notification,
         ),
       );
+      toast('Marked as read.');
     } catch (err) {
       setError(errorMessage(err));
     }
   }
 
-  if (loading) return <Spinner />;
+  if (loading) return <SkeletonRows rows={4} />;
 
   return (
     <div>
       <PageHeader title="Notifications" subtitle="Updates on tickets you are involved in." />
-      {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
+      <div aria-live="polite">
+        {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
+      </div>
       {notifications.length === 0 ? (
-        <EmptyState title="You are all caught up" message="Notifications will appear here as tickets change." />
+        <EmptyState
+          title="You are all caught up"
+          message="When a ticket changes, you will see the update here. Nothing to do right now."
+        />
       ) : (
         <div className="space-y-3">
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className={`flex flex-wrap items-center gap-4 rounded-xl border bg-white p-5 shadow-sm ${
+              className={`animate-fade-in flex flex-wrap items-center gap-4 rounded-xl border bg-white p-5 shadow-sm ${
                 notification.readAt ? 'border-stone-200' : 'border-brand-200 ring-1 ring-brand-100'
               }`}
             >
@@ -59,11 +67,12 @@ export function NotificationsPage() {
               </div>
               {!notification.readAt && (
                 <Button variant="secondary" className="px-3 py-1.5 text-xs" onClick={() => markRead(notification.id)}>
-                  Mark read
+                  <Check size={14} /> Mark read
                 </Button>
               )}
               <Link
                 to={`/tickets/${notification.ticketId}`}
+                onClick={() => track('notification.opened', { source: 'inbox' })}
                 className="text-sm font-semibold text-brand-600 hover:text-brand-700"
               >
                 View ticket

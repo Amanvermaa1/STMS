@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="STMS Helpdesk">
+  <rect width="192" height="192" rx="42" fill="#4f46e5"/>
+  <path d="M96 36c-30 0-54 24-54 54v30a18 18 0 0 0 18 18h12v-42H60v-6c0-20 16-36 36-36s36 16 36 36v6h-12v42h12a18 18 0 0 0 18-18V90c0-30-24-54-54-54Z" fill="#fff"/>
+  <rect x="82" y="112" width="28" height="46" rx="14" fill="#c7d2fe"/>
+</svg>

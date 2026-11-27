@@ -117,6 +117,10 @@ export async function logoutSession(db: Database, req: Request, res: Response): 
       .set({ revokedAt: new Date() })
       .where(eq(refreshTokens.tokenHash, hashRefreshToken(token)));
   }
+  clearSessionCookies(res);
+}
+
+export function clearSessionCookies(res: Response): void {
   res.clearCookie('access_token', { path: '/' });
   res.clearCookie('refresh_token', { path: '/' });
 }

@@ -14,10 +14,20 @@ function int(name: string, fallback: number): number {
   return Number.isFinite(value) && value > 0 ? Math.trunc(value) : fallback;
 }
 
+function list(name: string, fallback: string): string[] {
+  return str(name, fallback)
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+const DEFAULT_DATABASE_URL = 'postgresql://stms:stms@localhost:5432/stms';
+
 export const env = {
   nodeEnv: str('NODE_ENV', 'development'),
   port: int('PORT', 4000),
-  databaseUrl: str('DATABASE_URL', 'postgresql://stms:stms@localhost:5432/stms'),
+  databaseUrl: str('DATABASE_URL', DEFAULT_DATABASE_URL),
+  migrationDatabaseUrl: str('DATABASE_MIGRATION_URL', str('DATABASE_URL', DEFAULT_DATABASE_URL)),
   jwtSecret: str('JWT_SECRET', 'dev-only-change-me'),
   accessSecret: str('JWT_ACCESS_SECRET', process.env.JWT_SECRET?.trim() || 'dev-only-access-secret'),
   refreshSecret: str('JWT_REFRESH_SECRET', process.env.JWT_SECRET?.trim() || 'dev-only-refresh-secret'),
@@ -32,6 +42,9 @@ export const env = {
   smtpUser: str('SMTP_USER', ''),
   smtpPassword: str('SMTP_PASSWORD', ''),
   smtpFrom: str('SMTP_FROM', 'Helpdesk <no-reply@stms.local>'),
+  webauthnRpId: str('WEBAUTHN_RP_ID', 'localhost'),
+  webauthnRpName: str('WEBAUTHN_RP_NAME', 'STMS Helpdesk'),
+  webauthnOrigins: list('WEBAUTHN_ORIGINS', 'http://localhost:5173,http://localhost:8080'),
 } as const;
 
 export const isProduction = env.nodeEnv === 'production';

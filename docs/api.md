@@ -2,7 +2,7 @@
 
 Base URL: `http://localhost:4000/api` (Docker: `http://localhost:8080/api`)
 
-All responses are JSON except `DELETE /tickets/:id`, which returns `204 No Content`.
+All responses are JSON except `DELETE /tickets/:id`, `DELETE /me/data` and `DELETE /passkeys/:id`, which return `204 No Content`.
 
 ## Authentication
 
@@ -154,6 +154,68 @@ Example notification:
 }
 ```
 
+### Preferences & data — `/api/me` (all routes require auth)
+
+| Method | Path | Body | Description |
+| --- | --- | --- | --- |
+| GET | `/preferences` | — | Return dashboard, ticket-list and privacy preferences with defaults |
+| PATCH | `/preferences` | `{ "dashboard": { "widgets": [...] }, "tickets": { ... }, "privacy": { ... } }` | Merge and persist supported preference keys |
+| GET | `/data` | — | Export account, preferences, tickets, comments, notifications, activity and analytics (never the password hash) |
+| DELETE | `/data` | `{ "password": "current-password" }` | Delete the account and related rows after password confirmation; clears auth cookies |
+
+Preference payload example:
+
+```json
+{
+  "dashboard": { "widgets": ["summary", "recent", "priority"] },
+  "tickets": { "status": "open", "priority": "high", "sortBy": "updatedAt", "sortOrder": "desc", "limit": 10 },
+  "privacy": { "analyticsOptIn": false, "productUpdatesOptIn": false }
+}
+```
+
+### Analytics — `/api/analytics`
+
+| Method | Path | Access | Body | Description |
+| --- | --- | --- | --- | --- |
+| POST | `/events` | Auth | `{ "events": [{ "type": "ticket.view", "metadata": { "detail": true } }] }` | Record 1–25 anonymous signals; returns `{ "recorded": n }` with status 202 |
+| GET | `/insights` | Admin | — | 30-day aggregates by event type plus recent event types |
+
+Allowed event types: `auth.login`, `ticket.view`, `ticket.create_started`, `ticket.create_completed`, `ticket.search`, `ticket.filter_changed`, `ticket.comment_added`, `notification.opened`, `assistant.query`, `settings.updated`.
+
+Metadata values are limited to short strings, numbers, booleans or null. If `privacy.analyticsOptIn` is `false`, ingestion is ignored server-side (`recorded: 0`). No ticket text, email or name is accepted.
+
+### Assistant — `/api/assistant` (all routes require auth)
+
+| Method | Path | Body | Description |
+| --- | --- | --- | --- |
+| POST | `/query` | `{ "query": "show my urgent billing tickets" }` | Deterministically parse status/priority/category/keywords and search only the caller's tickets |
+
+Example response:
+
+```json
+{
+  "answer": "I found 2 matching tickets. Here are the most recent:",
+  "tickets": [{ "id": "0b5d…", "title": "Invoice is wrong", "status": "open", "priority": "urgent", "category": "billing", "updatedAt": "2026-11-26T10:00:00.000Z" }],
+  "total": 2,
+  "filters": { "status": null, "priority": "urgent", "category": "billing", "search": null }
+}
+```
+
+Count-style questions (`how many`, `count`, `total`) return counts from the caller's scoped statistics. No external model or API is involved.
+
+### Passkeys — `/api/passkeys`
+
+| Method | Path | Access | Body | Description |
+| --- | --- | --- | --- | --- |
+| GET | `/` | Auth | — | List the current user's passkey metadata (no public keys) |
+| POST | `/register/options` | Auth | — | Generate registration options and store a 5-minute challenge |
+| POST | `/register/verify` | Auth | Browser `RegistrationResponseJSON` | Verify attestation and save the credential |
+| POST | `/authenticate/options` | Public | `{ "email": "jane@example.com" }` (optional) | Generate authentication options; omit email for discoverable passkeys |
+| POST | `/authenticate/verify` | Public | `{ "email": "…", "response": AuthenticationResponseJSON }` | Verify assertion, update counter and issue the normal session cookies |
+| DELETE | `/:id` | Auth | — | Remove one of the current user's passkeys |
+
+Configure `WEBAUTHN_RP_ID`, `WEBAUTHN_RP_NAME` and comma-separated `WEBAUTHN_ORIGINS` before using passkeys outside `localhost`. Passwords remain supported; passkeys are additive.
+
 ## Business rules
 
 - Users can only read, edit, delete or comment on their own tickets.
@@ -162,3 +224,6 @@ Example notification:
 - Tickets with comments cannot be deleted.
 - Setting status to `resolved` produces both `ticket.status_changed` and `ticket.resolved` events.
 - Every domain event writes an activity log and creates in-app notifications; email is sent only when SMTP is configured.
+- Analytics collection respects the per-user opt-out and stores no ticket free text.
+- Assistant results are scoped to the authenticated user; admins do not gain cross-user access through the assistant.
+- Account deletion requires the correct password and clears both auth cookies.

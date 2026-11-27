@@ -1,4 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  startAuthentication,
+  type PublicKeyCredentialRequestOptionsJSON,
+} from '@simplewebauthn/browser';
 import api, { errorMessage } from '../api/client';
 import type { User } from '../types';
 
@@ -6,6 +10,7 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithPasskey: (email?: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -41,6 +46,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async login(email, password) {
         const response = await api.post<{ user: User }>('/auth/login', { email, password });
         setUser(response.data.user);
+      },
+      async loginWithPasskey(email) {
+        const { data: options } = await api.post<PublicKeyCredentialRequestOptionsJSON>(
+          '/passkeys/authenticate/options',
+          email ? { email } : {},
+        );
+        const response = await startAuthentication({ optionsJSON: options });
+        const { data } = await api.post<{ user: User }>('/passkeys/authenticate/verify', { email, response });
+        setUser(data.user);
       },
       async register(name, email, password) {
         const response = await api.post<{ user: User }>('/auth/register', { name, email, password });

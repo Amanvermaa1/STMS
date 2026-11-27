@@ -8,6 +8,20 @@
       "when": 1795695773734,
       "tag": "0000_medical_bishop",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795696841811,
+      "tag": "0001_oval_mach_iv",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795699762275,
+      "tag": "0002_condemned_blink",
+      "breakpoints": true
     }
   ]
 }

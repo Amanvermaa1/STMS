@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, MessageSquare, Mic, Pencil, Square, Trash2 } from 'lucide-react';
 import api, { errorMessage } from '../api/client';
+import { track } from '../api/analytics';
+import { useSpeechDictation } from '../hooks/useSpeechDictation';
 import { useAuth } from '../auth/AuthContext';
 import {
   ActivityEntry,
@@ -9,11 +11,13 @@ import {
   CategoryBadge,
   ErrorBanner,
   Field,
+  Modal,
   PriorityBadge,
-  Spinner,
+  SkeletonRows,
   StatusBadge,
   formatDate,
   inputClass,
+  useToast,
 } from '../components/ui';
 import type { ActivityEntry as ActivityItem, Priority, Status, Ticket, TicketComment } from '../types';
 
@@ -21,13 +25,17 @@ export function TicketDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [comments, setComments] = useState<TicketComment[]>([]);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [commentBody, setCommentBody] = useState('');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
+  const dictation = useSpeechDictation((text) => setCommentBody((current) => `${current ? `${current} ` : ''}${text}`));
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -45,18 +53,22 @@ export function TicketDetailPage() {
     load()
       .catch((err) => setError(errorMessage(err)))
       .finally(() => setLoading(false));
+    track('ticket.view', { detail: true });
   }, [load]);
 
   async function updateAdminField(patch: Record<string, string>) {
     if (!ticket) return;
+    const [key, value] = Object.entries(patch)[0]!;
     setBusy(true);
     setError('');
+    setTicket((current) => (current ? { ...current, [key]: value } : current));
     try {
-      const [key, value] = Object.entries(patch)[0]!;
       await api.patch(`/admin/tickets/${ticket.id}/${key}`, { [key]: value });
       await load();
+      toast(`Ticket ${key === 'status' ? 'status' : 'priority'} updated.`);
     } catch (err) {
       setError(errorMessage(err));
+      await load().catch(() => undefined);
     } finally {
       setBusy(false);
     }
@@ -71,6 +83,8 @@ export function TicketDetailPage() {
       await api.post(`/tickets/${ticket.id}/comments`, { body: commentBody });
       setCommentBody('');
       await load();
+      toast('Your reply was posted.');
+      track('ticket.comment_added', { role: user?.role ?? 'user' });
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -79,17 +93,29 @@ export function TicketDetailPage() {
   }
 
   async function removeTicket() {
-    if (!ticket || !window.confirm('Delete this ticket? This cannot be undone.')) return;
+    if (!ticket) return;
+    setDeleting(true);
     try {
       await api.delete(`/tickets/${ticket.id}`);
+      setDeleteOpen(false);
+      toast('The ticket was deleted.');
       navigate('/tickets');
     } catch (err) {
       setError(errorMessage(err));
+      setDeleteOpen(false);
+    } finally {
+      setDeleting(false);
     }
   }
 
-  if (loading) return <Spinner />;
-  if (!ticket) return <ErrorBanner message={error || 'Ticket not found'} />;
+  if (loading) {
+    return (
+      <div>
+        <SkeletonRows rows={3} />
+      </div>
+    );
+  }
+  if (!ticket) return <ErrorBanner message={error || 'We could not find that ticket.'} />;
 
   const isOwner = user?.id === ticket.authorId;
   const canEdit = isOwner && ['open', 'in_progress'].includes(ticket.status);
@@ -100,11 +126,13 @@ export function TicketDetailPage() {
         <ArrowLeft size={16} /> Back to tickets
       </Link>
 
-      {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
+      <div aria-live="polite">
+        {error && <div className="mb-5"><ErrorBanner message={error} /></div>}
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <section className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
+          <section className="animate-slide-up rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Ticket #{ticket.id.slice(0, 8)}</p>
@@ -114,11 +142,11 @@ export function TicketDetailPage() {
                 <div className="flex gap-2">
                   <Link
                     to={`/tickets/${ticket.id}/edit`}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
                   >
                     <Pencil size={15} /> Edit
                   </Link>
-                  <Button variant="danger" onClick={removeTicket} className="px-3 py-2">
+                  <Button variant="danger" onClick={() => setDeleteOpen(true)} className="px-3 py-2">
                     <Trash2 size={15} /> Delete
                   </Button>
                 </div>
@@ -129,6 +157,11 @@ export function TicketDetailPage() {
               <PriorityBadge priority={ticket.priority} />
               <CategoryBadge category={ticket.category} />
             </div>
+            {ticket.status === 'resolved' && (
+              <div className="mb-5 flex items-center gap-2 rounded-lg border border-success-200 bg-success-50 px-4 py-3 text-sm text-success-700">
+                <CheckCircle2 size={17} /> This ticket has been resolved. Thanks for your patience.
+              </div>
+            )}
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">{ticket.description}</p>
             <dl className="mt-6 grid gap-4 border-t border-stone-100 pt-5 text-sm sm:grid-cols-2">
               <div>
@@ -147,13 +180,22 @@ export function TicketDetailPage() {
               <MessageSquare size={18} /> Conversation ({comments.length})
             </h2>
             <div className="space-y-4">
-              {comments.length === 0 && <p className="text-sm text-stone-500">No comments yet. Start the conversation below.</p>}
+              {comments.length === 0 && (
+                <p className="rounded-lg bg-stone-50 p-4 text-sm text-stone-500">
+                  No replies yet. Add a note below if you have more details to share.
+                </p>
+              )}
               {comments.map((comment) => (
-                <div key={comment.id} className={`rounded-lg p-4 ${comment.authorRole === 'admin' ? 'bg-brand-50/70 ring-1 ring-brand-100' : 'bg-stone-50'}`}>
+                <div
+                  key={comment.id}
+                  className={`animate-fade-in rounded-lg p-4 ${comment.authorRole === 'admin' ? 'bg-brand-50/70 ring-1 ring-brand-100' : 'bg-stone-50'}`}
+                >
                   <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                     <p className="text-sm font-semibold text-stone-800">
                       {comment.authorName}
-                      {comment.authorRole === 'admin' && <span className="ml-2 rounded bg-brand-100 px-2 py-0.5 text-xs text-brand-700">Support team</span>}
+                      {comment.authorRole === 'admin' && (
+                        <span className="ml-2 rounded bg-brand-100 px-2 py-0.5 text-xs text-brand-700">Support team</span>
+                      )}
                     </p>
                     <p className="text-xs text-stone-500">{formatDate(comment.createdAt)}</p>
                   </div>
@@ -163,17 +205,32 @@ export function TicketDetailPage() {
             </div>
 
             <form onSubmit={addComment} className="mt-6 border-t border-stone-100 pt-5">
-              <Field label="Add a comment" htmlFor="comment">
-                <textarea
-                  id="comment"
-                  rows={3}
-                  required
-                  maxLength={2000}
-                  className={inputClass}
-                  value={commentBody}
-                  onChange={(event) => setCommentBody(event.target.value)}
-                  placeholder="Write an update or reply…"
-                />
+              <Field label="Add a comment" htmlFor="comment" hint="Include anything that might help the support team.">
+                <div className="relative">
+                  <textarea
+                    id="comment"
+                    rows={3}
+                    required
+                    maxLength={2000}
+                    className={`${inputClass} ${dictation.supported ? 'pb-11' : ''}`}
+                    value={commentBody}
+                    onChange={(event) => setCommentBody(event.target.value)}
+                    placeholder="Write an update or reply…"
+                  />
+                  {dictation.supported && (
+                    <button
+                      type="button"
+                      onClick={dictation.toggle}
+                      aria-label={dictation.listening ? 'Stop dictation' : 'Dictate comment'}
+                      className={`absolute bottom-2.5 right-2.5 rounded-lg p-1.5 transition ${
+                        dictation.listening ? 'bg-danger-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      {dictation.listening ? <Square size={15} /> : <Mic size={16} />}
+                    </button>
+                  )}
+                </div>
+                {dictation.error && <p className="mt-1.5 text-xs text-danger-700">{dictation.error}</p>}
               </Field>
               <div className="mt-3 flex justify-end">
                 <Button type="submit" disabled={busy || !commentBody.trim()}>Post comment</Button>
@@ -217,7 +274,7 @@ export function TicketDetailPage() {
                 </Field>
               </div>
             ) : (
-              <p className="text-sm text-stone-500">Status changes are managed by the support team.</p>
+              <p className="text-sm text-stone-500">Status changes are managed by the support team. We will let you know when anything changes.</p>
             )}
           </section>
 
@@ -227,6 +284,16 @@ export function TicketDetailPage() {
           </section>
         </div>
       </div>
+
+      <Modal
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={removeTicket}
+        title="Delete this ticket?"
+        description="This removes the ticket and its activity history permanently. If you still need help, you can raise a new ticket at any time."
+        confirmLabel="Delete ticket"
+        busy={deleting}
+      />
     </div>
   );
 }

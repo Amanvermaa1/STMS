@@ -7,8 +7,12 @@ import type { Dependencies } from './deps.js';
 import { registerEventHandlers } from './events/handlers.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 import { createAdminRouter } from './modules/admin/controller.js';
+import { createAnalyticsRouter } from './modules/analytics/controller.js';
+import { createAssistantRouter } from './modules/assistant/controller.js';
 import { createAuthRouter } from './modules/auth/controller.js';
 import { createNotificationsRouter } from './modules/notifications/controller.js';
+import { createPasskeysRouter } from './modules/passkeys/controller.js';
+import { createPreferencesRouter } from './modules/preferences/controller.js';
 import { createTicketsRouter } from './modules/tickets/controller.js';
 
 const wiredBuses = new WeakSet<object>();
@@ -50,6 +54,10 @@ export function createApp(deps: Dependencies) {
   app.use('/api/tickets', createTicketsRouter(deps));
   app.use('/api/admin', createAdminRouter(deps));
   app.use('/api/notifications', createNotificationsRouter(deps));
+  app.use('/api/me', createPreferencesRouter(deps));
+  app.use('/api/analytics', createAnalyticsRouter(deps));
+  app.use('/api/assistant', createAssistantRouter(deps));
+  app.use('/api/passkeys', createPasskeysRouter(deps));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

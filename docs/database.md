@@ -77,6 +77,49 @@ Index: `(ticket_id)`. This is an append-only audit trail.
 
 Index: `(recipient_id, read_at)`.
 
+### `user_preferences`
+| Column | Type | Notes |
+| --- | --- | --- |
+| `user_id` | uuid PK, FK → users | `ON DELETE CASCADE` |
+| `values` | jsonb | `{ dashboard, tickets, privacy }` merged on PATCH |
+| `updated_at` | timestamptz | |
+
+### `analytics_events`
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid PK | |
+| `user_id` | uuid FK → users | `ON DELETE CASCADE`; nullable for future anonymous events |
+| `type` | varchar(80) | Allow-listed event name |
+| `metadata` | jsonb | Small scalar values only; no free text/PII |
+| `created_at` | timestamptz | |
+
+Indexes: `(user_id)`, `(type, created_at)`.
+
+### `passkey_credentials`
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid PK | |
+| `user_id` | uuid FK → users | `ON DELETE CASCADE` |
+| `credential_id` | varchar(255) unique | WebAuthn credential ID |
+| `public_key` | text | Base64url-encoded COSE public key |
+| `counter`, `device_type`, `backed_up`, `transports` | integer / varchar / boolean / jsonb | Signature counter and authenticator metadata |
+| `created_at` | timestamptz | |
+
+Index: `(user_id)` plus a unique index on `credential_id`. Public keys are never returned by the API.
+
+### `webauthn_challenges`
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid PK | |
+| `type` | varchar(20) | `register` or `authenticate` |
+| `challenge` | varchar(255) unique | Base64url random challenge |
+| `user_id` | uuid FK → users | Nullable during email-less authentication |
+| `user_identifier` | varchar(254) | Email used to scope authentication challenges |
+| `expires_at` | timestamptz | Five-minute expiry |
+| `created_at` | timestamptz | |
+
+Indexes: unique `(challenge)`, `(user_id)`. Consumed and expired challenges are safe to prune.
+
 ## Relationships
 
 ```
@@ -84,7 +127,10 @@ users 1 ──── * tickets 1 ──── * comments
   │              │
   │              ├──── * activity_logs
   │              └──── * notifications
-  └──── * refresh_tokens
+  ├──── * refresh_tokens
+  ├──── 1 user_preferences
+  ├──── * analytics_events
+  └──── * passkey_credentials
 ```
 
 ## Query choices
@@ -94,6 +140,9 @@ users 1 ──── * tickets 1 ──── * comments
 - Filters combine `eq` predicates with escaped `ILIKE` search; sorting uses a `CASE` expression for priority so ordering is low → urgent rather than alphabetical.
 - Counts and paginated rows use the same `WHERE` clause, executed concurrently.
 - Search uses `ILIKE` for clarity at this scale; a `tsvector` generated column + GIN index is the documented upgrade path for larger datasets.
+- Preference JSON is merged in the service layer after schema validation, keeping the stored shape predictable.
+- Analytics rows are aggregate-friendly and contain only allow-listed scalar metadata.
+- WebAuthn challenges are short-lived and deleted on verification; credentials store only public keys and signature counters.
 
 ## Migrations & tests
 
