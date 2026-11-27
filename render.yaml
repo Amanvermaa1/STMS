@@ -19,13 +19,13 @@ services:
       - key: JWT_REFRESH_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://stms-web.onrender.com
+        value: https://stms-web-lwoq.onrender.com
       - key: WEBAUTHN_RP_ID
-        value: stms-web.onrender.com
+        value: stms-web-lwoq.onrender.com
       - key: WEBAUTHN_RP_NAME
         value: STMS Helpdesk
       - key: WEBAUTHN_ORIGINS
-        value: https://stms-web.onrender.com
+        value: https://stms-web-lwoq.onrender.com
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
@@ -42,7 +42,7 @@ services:
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://stms-api.onrender.com/api/*
+        destination: https://stms-api-89yn.onrender.com/api/*
       - type: rewrite
         source: /*
         destination: /index.html

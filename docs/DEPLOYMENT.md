@@ -2,6 +2,12 @@
 
 The repository is deployment-ready; create the hosted accounts and add the URLs/secrets to complete the live link requirement.
 
+## Live deployment (current)
+
+- **Web:** https://stms-web-lwoq.onrender.com/
+- **API health:** https://stms-api-89yn.onrender.com/health
+- The API is proxied same-origin through the web site's `/api/*` rewrite, so cookies and CORS work from the web URL above.
+
 ## 1. Database (Supabase)
 
 1. Create a project at <https://supabase.com/dashboard> and copy the connection strings from **Project Settings → Database → Connection strings**.
@@ -38,7 +44,7 @@ To create the API manually instead:
 3. Environment variables: `DATABASE_URL`, `NODE_ENV=production`, `JWT_SECRET`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN=<web-url>`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and optional SMTP settings.
    For passkeys, also set `WEBAUTHN_RP_ID` to your web domain (without protocol/port), `WEBAUTHN_RP_NAME` to a friendly product name, and `WEBAUTHN_ORIGINS` to the comma-separated HTTPS origin(s) of the web app.
 4. Health check path: `/health`.
-5. Note the API URL, e.g. `https://stms-api.onrender.com`.
+5. Note the API URL, e.g. `https://stms-api-89yn.onrender.com`. If the blueprint's `stms-api` name is already taken globally, Render appends a suffix; update the web rewrite destination and the API's `CORS_ORIGIN`/`WEBAUTHN_*` values to the actual URLs.
 
 ## 3. Web + API together (Vercel Services)
 
@@ -52,7 +58,7 @@ To create the API manually instead:
    `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `WEBAUTHN_RP_ID=<vercel-hostname>`,
    `WEBAUTHN_ORIGINS=<vercel-origin>`, and optional SMTP settings.
 4. The `server` build command runs `npm run build && npm run db:migrate:prod && npm run db:seed:prod`, so schema and admin seed are ready before the API serves traffic.
-5. Note the Vercel URL — this is the **live deployment link** for the submission.
+5. If this host is used, note its URL and verify `/health` and `/login` return non-404 responses before submitting. The current submission uses the Render web URL above.
 
 ### Web-only alternative (separate API host)
 

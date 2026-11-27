@@ -2,7 +2,7 @@
 
 A mini helpdesk where users raise and track support tickets, and administrators manage, prioritize and resolve them. Built as a full-stack TypeScript application with a REST API, PostgreSQL, JWT authentication, an event-driven activity/notification layer, and an accessible, responsive React + Tailwind CSS v4.3 frontend with adaptive preferences, deterministic assistance, privacy controls and passkey sign-in.
 
-**Live deployment link:** _to be added after deploying (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md))_
+**Live deployment link:** https://stms-web-lwoq.onrender.com/ (API health: https://stms-api-89yn.onrender.com/health)
 
 ## Features
 
@@ -197,4 +197,4 @@ Covered: registration/login/refresh/logout, admin-only routes, ownership isolati
 - [x] Database design explanation
 - [x] Automated API tests
 - [x] Docker support
-- [ ] Live deployment link — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+- [x] Live deployment link — https://stms-web-lwoq.onrender.com/
