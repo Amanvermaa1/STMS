@@ -59,6 +59,16 @@ export async function authenticateUser(
   return toPublicUser(user);
 }
 
+export function refreshAccessToken(res: Response, user: PublicUser): void {
+  const payload: AccessPayload = {
+    sub: user.id,
+    role: user.role,
+    email: user.email,
+    name: user.name,
+  };
+  res.cookie('access_token', signAccessToken(payload), cookieOptions(15 * 60 * 1000));
+}
+
 export async function issueSession(db: Database, res: Response, user: PublicUser): Promise<void> {
   const payload: AccessPayload = {
     sub: user.id,

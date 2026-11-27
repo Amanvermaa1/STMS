@@ -1,6 +1,9 @@
+import { eq } from 'drizzle-orm';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
+import { users } from '../db/schema.js';
 import { createAdmin, loginUser, makeApp, registerUser } from './helpers.js';
+import { db } from './db.js';
 
 describe('authentication and authorization', () => {
   it('registers a user, issues cookies and returns the current user', async () => {
@@ -77,5 +80,17 @@ describe('authentication and authorization', () => {
     await agent.post('/api/auth/logout').expect(200);
 
     await request.agent(makeApp()).get('/api/auth/me').expect(401);
+  });
+
+  it('refreshes the access token when the stored role changes', async () => {
+    const agent = request.agent(makeApp());
+    const user = await registerUser(agent, 'promoted@example.com');
+
+    await db.update(users).set({ role: 'admin' }).where(eq(users.id, user.id));
+
+    const me = await agent.get('/api/auth/me').expect(200);
+    expect(me.body.user.role).toBe('admin');
+
+    await agent.get('/api/analytics/insights').expect(200);
   });
 });

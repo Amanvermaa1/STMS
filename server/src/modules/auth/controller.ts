@@ -11,6 +11,7 @@ import {
   authenticateUser,
   issueSession,
   logoutSession,
+  refreshAccessToken,
   refreshSession,
   registerUser,
   toPublicUser,
@@ -78,7 +79,16 @@ export function createAuthRouter({ db }: Dependencies): Router {
     asyncHandler(async (req, res) => {
       const [user] = await db.select().from(users).where(eq(users.id, req.authUser!.id));
       if (!user) throw notFound('Account not found');
-      res.json({ user: toPublicUser(user) });
+      const publicUser = toPublicUser(user);
+      const token = req.authUser!;
+      if (
+        publicUser.role !== token.role ||
+        publicUser.email !== token.email ||
+        publicUser.name !== token.name
+      ) {
+        refreshAccessToken(res, publicUser);
+      }
+      res.json({ user: publicUser });
     }),
   );
 
