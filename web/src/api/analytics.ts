@@ -18,6 +18,6 @@ type MetadataValue = string | number | boolean | null;
 export function track(type: AnalyticsEventType, metadata: Record<string, MetadataValue> = {}): void {
   if (typeof window === 'undefined') return;
   void api
-    .post('/api/analytics/events', { events: [{ type, metadata }] })
+    .post('/analytics/events', { events: [{ type, metadata }] })
     .catch(() => undefined);
 }
