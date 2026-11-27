@@ -14,4 +14,4 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /app/server/dist ./dist
 COPY drizzle ./drizzle
 EXPOSE 4000
-CMD ["node", "dist/server.js"]
+CMD ["sh", "-c", "npm run db:migrate:prod && npm run db:seed:prod && node dist/server.js"]

@@ -113,11 +113,12 @@ npm run preview      # serve dist/
 ```
 F:\STMS\
 ├─ docker-compose.yml          # postgres + api + web (nginx)
+├─ vercel.json                 # Vercel Services: Express API + Vite web on one domain
 ├─ .env.example
 ├─ docs\
 │  ├─ api.md                   # full endpoint reference
 │  ├─ database.md              # tables, indexes, design decisions
-│  ├─ DEPLOYMENT.md            # Supabase + Render + Vercel/Netlify guide
+│  ├─ DEPLOYMENT.md            # Supabase + Vercel Services + Render + Docker guide
 │  └─ postman\STMS.postman_collection.json
 ├─ server\
 │  ├─ drizzle\                 # generated SQL migrations

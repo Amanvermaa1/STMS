@@ -25,6 +25,10 @@ The repository is deployment-ready; create the hosted accounts and add the URLs/
 
 ## 2. API (Render)
 
+A root `render.yaml` blueprint defines both the API (`stms-api`) and static web site (`stms-web`). You can deploy both at once with **New → Blueprint** and point Render at this repository. The blueprint generates JWT secrets and prompts for `DATABASE_URL`, `DATABASE_MIGRATION_URL`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`; the API image runs migrations and seeds on start.
+
+To create the API manually instead:
+
 1. Create a **Web Service** from this repository, root directory `server`, environment **Docker**.
 2. Set the start command to:
    ```sh
