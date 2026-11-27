@@ -134,6 +134,7 @@ export interface TicketListPreferences {
   priority?: string;
   sortBy?: string;
   sortOrder?: string;
+  page?: number;
   limit?: number;
 }
 

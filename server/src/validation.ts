@@ -4,6 +4,15 @@ export const categories = ['general', 'billing', 'technical', 'account', 'featur
 export const priorities = ['low', 'medium', 'high', 'urgent'] as const;
 export const statuses = ['open', 'in_progress', 'resolved', 'closed'] as const;
 
+const ticketSortFields = ['createdAt', 'updatedAt', 'priority', 'status'] as const;
+const sortDirections = ['asc', 'desc'] as const;
+
+const emptyToUndefined = (value: unknown) =>
+  typeof value === 'string' && value.trim() === '' ? undefined : value;
+
+const optionalEnum = <T extends readonly [string, ...string[]]>(values: T) =>
+  z.preprocess(emptyToUndefined, z.enum(values).optional());
+
 export const registerSchema = z.object({
   name: z.string().trim().min(2).max(80),
   email: z.string().trim().toLowerCase().email().max(254),
@@ -40,14 +49,14 @@ export const prioritySchema = z.object({ priority: z.enum(priorities) });
 export const commentSchema = z.object({ body: z.string().trim().min(1).max(2000) });
 
 export const listTicketsSchema = z.object({
-  status: z.enum(statuses).optional(),
-  priority: z.enum(priorities).optional(),
-  category: z.enum(categories).optional(),
-  search: z.string().trim().max(100).optional(),
-  sortBy: z.enum(['createdAt', 'updatedAt', 'priority', 'status']).default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(50).default(10),
+  status: optionalEnum(statuses),
+  priority: optionalEnum(priorities),
+  category: optionalEnum(categories),
+  search: z.preprocess(emptyToUndefined, z.string().trim().max(100).optional()),
+  sortBy: z.preprocess(emptyToUndefined, z.enum(ticketSortFields).default('createdAt')),
+  sortOrder: z.preprocess(emptyToUndefined, z.enum(sortDirections).default('desc')),
+  page: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).default(1)),
+  limit: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).max(50).default(10)),
 });
 
 export type ListTicketsQuery = z.infer<typeof listTicketsSchema>;
@@ -62,12 +71,13 @@ export const preferencesSchema = z
       .optional(),
     tickets: z
       .object({
-        search: z.string().trim().max(100).optional(),
-        status: z.enum(statuses).optional(),
-        priority: z.enum(priorities).optional(),
-        sortBy: z.enum(['createdAt', 'updatedAt', 'priority', 'status']).optional(),
-        sortOrder: z.enum(['asc', 'desc']).optional(),
-        limit: z.number().int().min(5).max(50).optional(),
+        search: z.preprocess(emptyToUndefined, z.string().trim().max(100).optional()),
+        status: optionalEnum(statuses),
+        priority: optionalEnum(priorities),
+        sortBy: z.preprocess(emptyToUndefined, z.enum(ticketSortFields).optional()),
+        sortOrder: z.preprocess(emptyToUndefined, z.enum(sortDirections).optional()),
+        page: z.preprocess(emptyToUndefined, z.number().int().min(1).optional()),
+        limit: z.preprocess(emptyToUndefined, z.number().int().min(5).max(50).optional()),
       })
       .strict()
       .optional(),

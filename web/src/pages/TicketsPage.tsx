@@ -42,18 +42,31 @@ const INITIAL_FILTERS: Filters = {
 
 function readFilters(params: URLSearchParams): Filters {
   const sortBy = params.get('sortBy');
-  const sortOrder = params.get('sortOrder');
+  const status = params.get('status');
+  const priority = params.get('priority');
   return {
     search: params.get('search') ?? '',
-    status: (params.get('status') as Filters['status']) ?? '',
-    priority: (params.get('priority') as Filters['priority']) ?? '',
+    status: (['open', 'in_progress', 'resolved', 'closed'] as const).includes(status as Status)
+      ? (status as Status)
+      : '',
+    priority: (['low', 'medium', 'high', 'urgent'] as const).includes(priority as Priority)
+      ? (priority as Priority)
+      : '',
     sortBy: (['createdAt', 'updatedAt', 'priority', 'status'] as const).includes(sortBy as Filters['sortBy'])
       ? (sortBy as Filters['sortBy'])
       : 'createdAt',
-    sortOrder: sortOrder === 'asc' ? 'asc' : 'desc',
+    sortOrder: params.get('sortOrder') === 'asc' ? 'asc' : 'desc',
     page: Math.max(1, Number(params.get('page')) || 1),
     limit: Math.min(50, Math.max(5, Number(params.get('limit')) || 10)),
   };
+}
+
+function compactParams(filters: Filters): URLSearchParams {
+  const params = new URLSearchParams();
+  (Object.entries(filters) as Array<[keyof Filters, string | number]>).forEach(([key, value]) => {
+    if (value !== '' && value !== undefined) params.set(key, String(value));
+  });
+  return params;
 }
 
 export function TicketsPage() {
@@ -78,11 +91,7 @@ export function TicketsPage() {
   }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams();
-    (Object.entries(filters) as Array<[keyof Filters, string | number]>).forEach(([key, value]) => {
-      if (value !== '' && value !== undefined) params.set(key, String(value));
-    });
-    setSearchParams(params, { replace: true });
+    setSearchParams(compactParams(filters), { replace: true });
   }, [filters, setSearchParams]);
 
   useEffect(() => {
@@ -90,7 +99,7 @@ export function TicketsPage() {
     setLoading(true);
     const endpoint = user?.role === 'admin' ? '/admin/tickets' : '/tickets';
     api
-      .get<{ items: Ticket[]; pagination: Pagination }>(endpoint, { params: filters })
+      .get<{ items: Ticket[]; pagination: Pagination }>(endpoint, { params: compactParams(filters) })
       .then((response) => {
         if (!active) return;
         setItems(response.data.items);
@@ -115,7 +124,8 @@ export function TicketsPage() {
 
   async function saveView() {
     try {
-      await api.patch('/me/preferences', { tickets: filters });
+      const { search, status, priority, sortBy, sortOrder, limit } = filters;
+      await api.patch('/me/preferences', { tickets: { search, status, priority, sortBy, sortOrder, limit } });
       toast('Your ticket view was saved for next time.');
       track('settings.updated', { area: 'ticket_view' });
     } catch (err) {
